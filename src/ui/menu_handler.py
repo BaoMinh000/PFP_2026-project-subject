@@ -2,7 +2,7 @@ from time import sleep, time
 from src.services.file_io import load_from_file
 from src.configs.config import DATA_BOOKS_FILE
 from src.models import book
-from src.utils.screen import clear_screen
+from src.utils.util import clear_screen
 from src.services.book import add_book, return_book, sort_books, update_book, delete_book, display_books, search_books, update_book, borrow_book
 from src.ui.menu import show_statistics_menu
 from src.configs.config import DATA_BOOKS_FILE

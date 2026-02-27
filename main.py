@@ -1,9 +1,9 @@
 # ---------- Imports ----------
-# from asyncio.log import logger 
+from src.services.book import sort_books
 from src.ui.menu_handler import handle_menu_choice
 from src.ui.menu import show_menu
 from src.configs.config import DATA_BOOKS_FILE
-from src.services.file_io import load_from_file
+from src.services.file_io import load_from_file, save_to_file
 # Import necessary modules
 
 
@@ -14,11 +14,15 @@ data_books = DATA_BOOKS_FILE
 def main():
     try:
         books = load_from_file(data_books)
+        books = sort_books(books,"id","asc")
+
+        # save_to_file(books, DATA_BOOKS_FILE)
     except Exception as e:
         print(f"An error occurred while loading data: {e}")
         books = []
-    
-    print("Welcome to the Student Management System!")
+    for book in books:
+        print(book)
+    print("Welcome to the Book Management System!")
     while True:
         show_menu()
         choice = input("Enter your choice: ")
@@ -28,21 +32,4 @@ def main():
 if __name__ == "__main__":
     main()
     
-    
-# Update sort_books() to accept sorting condition and order as parameters
-# Modify sort_books() to return the sorted book list instead of only printing messages
 
-# Update list_all_books() / display_books() to call sort_books(books, "id", "asc")
-# Ensure books are sorted by ID in ascending order before displaying
-
-# Update list_most_borrowed_books() to use sort_books()
-# Sort books by borrow_count in descending order and display top 5 most borrowed books
-
-# Modify handle_menu_choice() to call statistics menu from menu.py
-# Remove direct statistics menu printing from handle_menu_choice()
-
-# Update data/books.txt to include borrower information
-# Ensure consistent data format for all book records
-
-# Add time.sleep(1) before exiting the program
-# Allow users time to read messages before the program closes

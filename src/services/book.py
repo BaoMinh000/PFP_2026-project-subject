@@ -1,12 +1,12 @@
 from src.services.file_io import save_to_file
 from src.models.book import Book 
 from src.configs.config import DATA_BOOKS_FILE
-from src.utils.util import generate_book_id
+from src.utils.util import generate_book_id, short_text_smart
 
 def add_book(books):
     # self.books.append(book)
     print("Adding a new book...")
-    
+    print(f"{books}")
     book_id = generate_book_id(books)
 
     print(f"Empty fields will cancel the adding process.")
@@ -26,11 +26,10 @@ def add_book(books):
 
     
     # Create and add the new book
-    new_book = Book(book_id, title, author, category, publication_year, True, 0)
-    books.append(new_book)
+    new_book = Book(book_id, title, author, category, publication_year, True, 0, None)
+    books.append(new_book) # add to list in memory, not file yet
     
     # Save to file
-    print("Saving data...")
     if save_to_file(books, DATA_BOOKS_FILE):
         print("Data saved successfully.")
         print(f"Book '{title}' added successfully with ID {book_id}.")
@@ -43,24 +42,23 @@ def delete_book(books):
     if book_id.strip() == "":
         print("Book ID cannot be empty.")
         return
-    for book in books:
-        if str(book.book_id) == book_id:
-            # Check if the book is currently borrowed
-            if book.is_available == False:
-                print(f"Cannot delete '{book.title}' as it is currently borrowed.")
-                return
-            books.remove(book)
-            save_to_file(books, DATA_BOOKS_FILE)
-            print(f"Book ID {book_id} deleted successfully.")
+    book = get_book_by_id(books, book_id)
+    if book:
+        
+        # Check if the book is currently borrowed
+        if book.is_available == False:
+            print(f"Cannot delete '{book.title}' as it is currently borrowed.")
             return
-    print(f"Book ID {book_id} not found.")
+        books.remove(book)
+        save_to_file(books, DATA_BOOKS_FILE)
+        print(f"Book ID {book_id} deleted successfully.")
+    else:    
+        print(f"Book ID {book_id} not found.")
            
 def display_books(books):
     if not books:
         print("No books in the system.")
         return
-
-    books = sort_books(books,"id","asc")
     
     if books is None:
         return
@@ -78,7 +76,7 @@ def display_books(books):
         f"| {'Year':<10}"
         f"| {'Status':<13}"
         f"| {'Borrowed':<10} |"
-        # f"| {'Borrower':<20} |"
+        f"| {'Borrower':<20} |"
     )
 
     line = "+" + "-" * (len(header) - 2) + "+"
@@ -87,16 +85,24 @@ def display_books(books):
     print(header)
     print(line)
 
+    
+
     for book in books:
+        
+        # Lấy tên người mượn để hiển thị
+        infob =""
+        for b in book.get_borrowers():
+            infob += f"{b['name']}, "
+        
         print(
             f"| {book.book_id:<12}"
-            f"| {book.title:<24}"
+            f"| {short_text_smart(book.title, 24):<24}"
             f"| {book.author:<24}"
-            f"| {book.category:<24}"
+            f"| {short_text_smart(book.category, 24):<24}"
             f"| {book._publication_year:<10}"
             f"| {'Available' if book.is_available else 'Borrowed':<13}"
             f"| {book.borrow_count:<10} |"
-            # f"| {book.current_borrower if book.current_borrower else 'None':<20} |"
+            f"| {infob:<20} |"
         )
 
     print(line)
@@ -104,21 +110,23 @@ def display_books(books):
 def update_book(books):
     print("Updating a book...")
     book_id = input("Enter the Book ID to update: ")
-    for book in books:
-        if str(book.book_id) == book_id:
-            new_title = input(f"Enter new title (current: {book.title}): ") or book.title
-            new_author = input(f"Enter new author (current: {book.author})): ") or book.author
-            new_category = input(f"Enter new category (current: {book.category}): ") or book.category
-            new_publication_year = input(f"Enter new publication year (current: {book._publication_year}): ") or book._publication_year
-            
-            book.title = new_title
-            book.author = new_author
-            book.category = new_category
-            book._publication_year = new_publication_year
-            save_to_file(books, DATA_BOOKS_FILE)
-            print(f"Book ID {book_id} updated successfully.")
-            return
-    print(f"Book ID {book_id} not found.")
+    book = get_book_by_id(books, book_id)
+    
+    if book:
+        # Nhap thong tin can cap nhat
+        new_title = input(f"Enter new title (current: {book.title}): ") or book.title
+        new_author = input(f"Enter new author (current: {book.author})): ") or book.author
+        new_category = input(f"Enter new category (current: {book.category}): ") or book.category
+        new_publication_year = input(f"Enter new publication year (current: {book._publication_year}): ") or book._publication_year
+        
+        book.title = new_title
+        book.author = new_author
+        book.category = new_category
+        book._publication_year = new_publication_year
+        save_to_file(books, DATA_BOOKS_FILE)
+        print(f"Book ID {book_id} updated successfully.")
+    else:
+        print(f"Book ID {book_id} not found.")
     
 def search_books(books):
     print("Searching for books...")
@@ -165,19 +173,25 @@ def search_books(books):
         
 def borrow_book(books):
     print("Borrowing a book...")
-    book_id = input("Enter the Book ID to borrow: ").strip()
+    
+    while True:
+        book_id = input("Enter the Book ID to borrow: ").strip()
+        book = get_book_by_id(books, book_id)
+
+        if book is not None:
+            break   # thoát khi hợp lệ
+    
     # Enter borrower info
     borrower_name = input("Enter borrower name: ")
     phone = input("Enter phone number: ")
-    borrower_info = f"{borrower_name} - {phone}"
+    borrower_info = {"name": borrower_name, "phone": phone}
     
-    book = get_book_by_id(books, book_id)
-
+    # Kiểm tra thông tin hợp lệ và trạng thái sách trước khi mượn
     if book and borrower_name and phone:   
         if borrower_name.strip() == "" or phone.strip() == "":
             print("Borrower name and phone number cannot be empty.")
             return 
-        if book.is_available:
+        if book.is_available: # nếu sách có thể mượn, thực hiện mượn
             if book.borrow(borrower_info):
                 print(f"Borrowed book: {book.title}")
                 print("Updating data...")
@@ -190,16 +204,34 @@ def borrow_book(books):
             print(f"Sorry, '{book.title}' is currently not available.")
     else:
         print(f"Book ID {book_id} not found, cannot borrow.")
-    
+ 
 def return_book(books):
     print("Returning a book...")
-    book_id = input("Enter the Book ID to return: ").strip()
-    book = get_book_by_id(books, book_id)
-    if book:
-        if not book.is_available:
-            book.return_book()
-            save_to_file(books, DATA_BOOKS_FILE)
-            print(f"You have successfully returned '{book.title}'.")
+    while True:
+        book_id = input("Enter the Book ID to return: ").strip()
+        book = get_book_by_id(books, book_id)
+
+        if book is not None:
+            break   # thoát khi hợp lệ
+
+    if book: # nếu tìm thấy sách, tiếp tục kiểm tra trạng thái và thực hiện trả
+        if not book.is_available: # nếu sách đang được mượn, thực hiện trả
+            print(f"Enter borrower information to return the book '{book.title}':")
+            
+            # Nhập thông tin người trả để xác nhận
+            borrower_name = input("Enter borrower name: ").strip()
+            phone = input("Enter phone number: ").strip()
+            # Kiểm tra thông tin hợp lệ trước khi trả
+            if borrower_name == "" or phone == "":
+                print("Borrower name and phone number cannot be empty.")
+                return
+            borrower_info = {"name": borrower_name, "phone": phone}
+            
+            if book.return_book(borrower_info):
+                save_to_file(books, DATA_BOOKS_FILE)
+                print(f"You have successfully returned '{book.title}'.")
+            else:
+                print(f"Failed to return book: {book.title}")
         else:
             print(f"'{book.title}' was not borrowed.")
         return
@@ -235,7 +267,6 @@ def sort_books(books, condition, order):
 
     if condition == "id":
         sorted_books.sort(key=book_sort_key_id, reverse=reverse)
-        save_to_file(sorted_books, DATA_BOOKS_FILE)
     elif condition == "author":
         sorted_books.sort(key=book_sort_key_author, reverse=reverse)
     elif condition == "title":
@@ -243,6 +274,7 @@ def sort_books(books, condition, order):
     elif condition == "year":
         sorted_books.sort(key=book_sort_key_year, reverse=reverse)
     else:
+        print(f"Invalid sort condition: {condition}. No sorting applied.")
         return None
 
     return sorted_books
