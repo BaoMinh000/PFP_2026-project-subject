@@ -264,36 +264,37 @@ def list_most_borrowed_books(books):
 def sort_books(books, condition, order):
     sorted_books = books[:]   # copy list
     reverse = (order == "desc")
-
+    print(f"Sorting books by {condition} in {'descending' if reverse else 'ascending'} order.")
     if condition == "id":
-        sorted_books.sort(key=book_sort_key_id, reverse=reverse)
+        sorted_books.sort(key=sorted_books.title.lower(), reverse=reverse)
     elif condition == "author":
-        sorted_books.sort(key=book_sort_key_author, reverse=reverse)
+        sorted_books.sort(key=sorted_books.author.lower(), reverse=reverse)
     elif condition == "title":
-        sorted_books.sort(key=book_sort_key_title, reverse=reverse)
+        sorted_books.sort(key=sorted_books.title.lower(), reverse=reverse)
     elif condition == "year":
-        sorted_books.sort(key=book_sort_key_year, reverse=reverse)
+        sorted_books.sort(key=sorted_books._publication_year, reverse=reverse)
     else:
         print(f"Invalid sort condition: {condition}. No sorting applied.")
         return None
 
     return sorted_books
 
-
-     
 def get_book_by_id(books, book_id):
+    # Tìm sách theo ID, trả về đối tượng Book nếu tìm thấy, ngược lại trả về None
+    if books is None:
+        return None
     for book in books:
         if str(book.book_id) == str(book_id):
             return book
     return None
     
-def book_sort_key_title(book):
-    return book.title.lower()
-def book_sort_key_author(book):
-    return book.author.lower()
-def book_sort_key_year(book):
-    return book._publication_year
-def book_sort_key_borrow_count(book):
-    return book.borrow_count
-def book_sort_key_id(book):
-    return book.book_id
+# def book_sort_key_title(book):
+#     return book.title.lower()
+# def book_sort_key_author(book):
+#     return book.author.lower()
+# def book_sort_key_year(book):
+#     return book._publication_year
+# def book_sort_key_borrow_count(book):
+#     return book.borrow_count
+# def book_sort_key_id(book):
+#     return book.book_id

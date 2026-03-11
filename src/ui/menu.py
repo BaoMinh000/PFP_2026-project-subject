@@ -7,7 +7,7 @@ def show_menu():
     print("5. Search books")
     print("6. Borrow a book")
     print("7. Return a book")
-    print("8. List borrowed books")
+    print("8. Sort books")
     print("9. Statistics & Reports")
     print("0. Exit")
     print("============================================")

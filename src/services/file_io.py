@@ -5,16 +5,8 @@ from src.utils.util import convert_borrowers_to_string, convert_string_to_borrow
 def save_to_file(books, filename):
     print("Saving book data...")
     print("Please wait...")
-    
-    # try:
-    #     with open(filename, 'r') as f:
-    #         content = f.read()
-    # except FileNotFoundError:
-    #     print(f"File {filename} does not exist. Creating new file.")
-    # except Exception as e:
-    #     print(f"Error saving to file: {e}")
-    #     return False
-    
+    # manager = BookManager().get_books()
+
     try:
         with open(filename, 'w') as f:
             for book in books:
@@ -41,6 +33,8 @@ def save_to_file(books, filename):
         return False
     except Exception as e:
         print(f"Error saving to file: {e}")
+        # manager = BookManager().get_books() # reload data from file to manager to ensure data integrity
+        # save_to_file(manager, filename) # attempt to save the data again
         return False
 
 def load_from_file(filename):

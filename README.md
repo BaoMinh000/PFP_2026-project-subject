@@ -1,6 +1,6 @@
 ﻿# PFP_20226-project-subject
 
-Guide: Enter "npm start" in CMD
+Guide: Enter "npm start" in CMD || python main.py at Project_assignment
 
 ```bash
 C:\Project_assignment> npm start

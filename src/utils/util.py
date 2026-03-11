@@ -37,7 +37,7 @@ def short_text_smart(text, width):
 def convert_borrowers_to_string(borrowers): # Chuyển đổi list borrower (list of dict) thành string để lưu vào file
     borrowers_str = ""
     print("Converting borrowers to string...")
-    print("Borrowers list:", borrowers)
+    # print("Borrowers list:", borrowers)
     if borrowers:   # nếu list không rỗng
     
         temp_list = []   # tạo list tạm
@@ -77,3 +77,18 @@ def convert_string_to_borrowers(borrowers_str): # Chuyển đổi string từ fi
                 # print("Created borrower dict:", borrower_dict)
                 borrowers.append(borrower_dict)    # thêm vào list borrowers
     return borrowers
+
+# Trong file util.py
+def get_html_template(file_name):
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Lùi 1 cấp từ utils ra src, rồi vào ui/component
+    raw_path = os.path.join(current_dir, "..", "ui", "component", file_name)
+    
+    # Hàm này sẽ biến "utils\..\ui" thành "src\ui" cho bạn dễ nhìn
+    file_path = os.path.normpath(raw_path)
+    
+    print(f"--- Đang tìm file tại: {file_path} ---") # In ra để kiểm tra
+    
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return f.read()

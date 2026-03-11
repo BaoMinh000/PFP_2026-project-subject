@@ -44,7 +44,11 @@ class Book:
     def __str__(self):
         status = "Available" if self._is_available else "Borrowed"
 
-        # if len(borrower) > 
+        # if len(borrower) > 0:
+        #     borrower_list = ", ".join(self.borrowers)
+        # else:
+        #     borrower_list = "None"
+
 
         return (
             f"Book ID: {self.book_id}, "

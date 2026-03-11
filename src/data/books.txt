@@ -1,5 +1,6 @@
 1,nha hoang tren doi,baominh,truyen,2024,False,1,minh-1234567890
 2,sky,baominh,hai,2333,True,0,None
-3,Khu do thi bo honag,ngoc,truyen,2222,True,0,None
+3,Khu do thi bo honag,ngoc,truyen,2222,False,1,hieu-9394747474
 4,tieu phu tren nui,baomnh,truyen,2131,True,0,None
 5,vu tru E34,ngoc,vien tuong,2000,True,0,None
+6,Present guidline,bao,science,2022,True,0,None
